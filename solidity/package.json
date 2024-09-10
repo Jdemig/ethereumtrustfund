@@ -1,0 +1,20 @@
+{
+  "name": "solidity",
+  "version": "1.0.0",
+  "description": "A smart contract for keeping track of a depositors funds and paying it out to the beneficiaries at a later date.",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx hardhat compile --show-stack-traces",
+    "clean": "npx hardhat clean --show-stack-traces",
+    "test: TrustFund": "npx hardhat test test/TrustFund.ts --show-stack-traces"
+  },
+  "author": "Jonathan Emig",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.10"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}
