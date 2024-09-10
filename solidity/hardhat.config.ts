@@ -1,12 +1,8 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
-
+import 'dotenv/config'
 
 import { accounts, hardhatAccounts } from "./test-wallets";
-
-
-console.log(accounts);
-
 
 
 const GWEI = 1000 * 1000 * 1000;
@@ -40,7 +36,7 @@ const config: HardhatUserConfig = {
         accounts: accounts.map(({ secretKey }: { secretKey: string; balance: string }) => secretKey),
     },
     amoy: {
-      url: "https://polygon-amoy.infura.io/v3/cafc0be7c6eb43bd963c7ec73869de42",
+      url: process.env.AMOY_RPC_PROVIDER,
       blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
       gasMultiplier: DEFAULT_GAS_MUL,
       gasPrice: 120 * GWEI,
@@ -48,7 +44,7 @@ const config: HardhatUserConfig = {
       accounts: accounts.map(({ secretKey }: { secretKey: string; balance: string }) => secretKey), 
     },
     polygon: {
-      url: "https://polygon-mainnet.infura.io/v3/222b984993d348afa14095524667a32a",
+      url: process.env.POLYGON_RPC_PROVIDER,
       blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
       gasMultiplier: DEFAULT_GAS_MUL,
       gasPrice: 120 * GWEI,
