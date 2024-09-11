@@ -12,14 +12,16 @@ import { useEffect } from "react";
 import { ethers } from "ethers";
 import { toast } from "@/hooks/use-toast";
 
+const NEXT_PUBLIC_ETH_NETWORK = process.env.NEXT_PUBLIC_ETH_NETWORK;
+
 export default function Home() {
   const checkNetworkAndNotify = () => {
     const provider = new ethers.BrowserProvider(window.ethereum);
     provider.getNetwork()
       .then((network) => {
-        if (network.name !== process.env.NEXT_PUBLIC_ETH_NETWORK) {
+        if (network.name !== NEXT_PUBLIC_ETH_NETWORK) {
           // remind the user that they need to be connected to the right network
-          toast({ title: `Please change your Metamask network to ${process.env.NEXT_PUBLIC_ETH_NETWORK}`, variant: "destructive" });
+          toast({ title: `Please change your Metamask network to ${NEXT_PUBLIC_ETH_NETWORK}`, variant: "destructive" });
         }
       });
   }
