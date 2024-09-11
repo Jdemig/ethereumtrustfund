@@ -62,25 +62,34 @@ export default function DepositForm() {
   });
 
   const onSubmit = async (data: z.infer<typeof validateSchema>) => {
-    const provider = new ethers.BrowserProvider(window.ethereum);
-    const signer = await provider.getSigner();
-    const contract = new ethers.Contract(
-      trustFundAddress,
-      trustFundJson.abi,
-      signer,
-    );
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      const contract = new ethers.Contract(
+        trustFundAddress,
+        trustFundJson.abi,
+        signer,
+      );
+      
+      const withdrawalTimestamp = data.withdrawalDate?.getTime() / 1000;
     
-    const withdrawalTimestamp = data.withdrawalDate?.getTime() / 1000;
-  
-    const txn = await contract.depositFunds(data.beneficiaryAddress, withdrawalTimestamp, {
-      value: ethers.parseEther(data.depositAmount),
-    });
-  
-    toast({ title: "Transaction sent" });
-  
-    await txn.wait();
-  
-    toast({ title: "Transaction confirmed!" });
+      const txn = await contract.depositFunds(data.beneficiaryAddress, withdrawalTimestamp, {
+        value: ethers.parseEther(data.depositAmount),
+      });
+    
+      toast({ title: "Transaction sent" });
+    
+      await txn.wait();
+    
+      toast({ title: "Transaction confirmed!", variant: "success" });
+
+      form.reset();
+    } catch (e: any) {
+      console.error(e);
+
+      toast({ title: e.message, variant: "destructive" });
+    }
   }
 
   return (
