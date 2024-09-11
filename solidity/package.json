@@ -7,7 +7,8 @@
     "build": "npx hardhat compile --show-stack-traces",
     "clean": "npx hardhat clean --show-stack-traces",
     "test": "npx hardhat test test/TrustFund.ts --show-stack-traces",
-    "deploy-amoy": "npx hardhat ignition deploy ./ignition/modules/TrustFund.ts --network amoy"
+    "deploy-amoy": "npx hardhat ignition deploy ./ignition/modules/TrustFund.ts --network amoy",
+    "deploy-polygon": "npx hardhat ignition deploy ./ignition/modules/TrustFund.ts --network polygon"
   },
   "author": "Jonathan Emig",
   "license": "ISC",
