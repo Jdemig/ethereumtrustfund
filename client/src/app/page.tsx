@@ -8,9 +8,30 @@ import {
 } from "@/components/ui/tabs"
 import DepositForm from "@/components/custom/DepositForm";
 import WithdrawForm from "@/components/custom/WithdrawForm";
-
+import { useEffect } from "react";
+import { ethers } from "ethers";
+import { toast } from "@/hooks/use-toast";
 
 export default function Home() {
+  const checkNetworkAndNotify = () => {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    provider.getNetwork()
+      .then((network) => {
+        if (network.name !== process.env.NEXT_PUBLIC_ETH_NETWORK) {
+          // remind the user that they need to be connected to the right network
+          toast({ title: `Please change your Metamask network to ${process.env.NEXT_PUBLIC_ETH_NETWORK}`, variant: "destructive" });
+        }
+      });
+  }
+
+  useEffect(() => {
+    checkNetworkAndNotify();
+
+    window.ethereum.on('chainChanged', function() {
+      checkNetworkAndNotify();
+    });
+  }, [])
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-center font-mono text-sm lg:flex">

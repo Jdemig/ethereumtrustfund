@@ -21,8 +21,11 @@ import {
 import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import trustFundJson from '@/abis/amoy/TrustFund.json';
 import { useToast } from "@/hooks/use-toast";
+import trustFundJson from "@/abis/TrustFund.json";
+
+const trustFundAddress = process.env.NEXT_PUBLIC_TRUST_FUND_ADDRESS || '';
+
 
 export default function WithdrawForm() {
   const [withdrawAmount, setWithdrawAmount] = useState<string>('');
@@ -33,12 +36,12 @@ export default function WithdrawForm() {
     }
   });
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async () => {
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(
-        trustFundJson.address,
+        trustFundAddress,
         trustFundJson.abi,
         signer,
       );
@@ -70,21 +73,33 @@ export default function WithdrawForm() {
 
   const getWithdrawalAmount = async () => {
     try {
+      console.log('getWi')
+
       const provider = new ethers.BrowserProvider(window.ethereum);
+      console.log(provider);
+
       const signer = await provider.getSigner();
+    
+      console.log(signer);
+      console.log(trustFundAddress);
       const contract = new ethers.Contract(
-        trustFundJson.address,
+        trustFundAddress,
         trustFundJson.abi,
         signer,
       );
+      console.log(contract);
   
       const txn = await contract.getFundsAmount();
+
+      console.log(txn);
   
       const ethValue = ethers.formatEther(txn);
   
       const txn2 = await contract.getFundsWithdrawalDate();
   
       const date = new Date(parseInt(txn2) * 1000);
+
+      console.log(ethValue);
 
       if (ethValue === '0.0') {
         setWithdrawAmount(ethValue + " ETH can be withdrawn");

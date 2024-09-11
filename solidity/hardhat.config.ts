@@ -5,15 +5,31 @@ import 'dotenv/config'
 import { accounts, hardhatAccounts } from "./test-wallets";
 
 
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
+const AMOY_RPC_PROVIDER = process.env.AMOY_RPC_PROVIDER || '';
+const POLYGON_RPC_PROVIDER = process.env.POLYGON_RPC_PROVIDER || '';
+
 const GWEI = 1000 * 1000 * 1000;
 
 const DEFAULT_BLOCK_GAS_LIMIT = 9500000;
 const DEFAULT_GAS_MUL = 5;
 const BUIDLEREVM_CHAINID = 31337;
 
-
 const config: HardhatUserConfig = {
   solidity: "0.8.24",
+  etherscan: {
+    apiKey: ETHERSCAN_API_KEY,
+    customChains: [
+      {
+        network: "polygonAmoy",
+        chainId: 80002,
+        urls: {
+          apiURL: "https://api-amoy.polygonscan.com/api",
+          browserURL: "https://amoy.polygonscan.com"
+        },
+      }
+    ]
+  },
   networks: {
     hardhat: {
         blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
@@ -35,8 +51,8 @@ const config: HardhatUserConfig = {
         throwOnCallFailures: true,
         accounts: accounts.map(({ secretKey }: { secretKey: string; balance: string }) => secretKey),
     },
-    amoy: {
-      url: process.env.AMOY_RPC_PROVIDER,
+    polygonAmoy: {
+      url: AMOY_RPC_PROVIDER,
       blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
       gasMultiplier: DEFAULT_GAS_MUL,
       gasPrice: 120 * GWEI,
@@ -44,7 +60,7 @@ const config: HardhatUserConfig = {
       accounts: accounts.map(({ secretKey }: { secretKey: string; balance: string }) => secretKey), 
     },
     polygon: {
-      url: process.env.POLYGON_RPC_PROVIDER,
+      url: POLYGON_RPC_PROVIDER,
       blockGasLimit: DEFAULT_BLOCK_GAS_LIMIT,
       gasMultiplier: DEFAULT_GAS_MUL,
       gasPrice: 120 * GWEI,

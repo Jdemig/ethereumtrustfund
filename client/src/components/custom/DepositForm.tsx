@@ -29,11 +29,13 @@ import { cn } from "@/lib/utils"
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
 import { ethers } from "ethers";
-import trustFundJson from '@/abis/amoy/TrustFund.json';
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import trustFundJson from '@/abis/TrustFund.json';
 
+
+const trustFundAddress = process.env.NEXT_PUBLIC_TRUST_FUND_ADDRESS || '';
 
 const validateSchema = z.object({
   beneficiaryAddress: z.string().min(1, { message: "A beneficiary is required." }),
@@ -63,7 +65,7 @@ export default function DepositForm() {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
     const contract = new ethers.Contract(
-      trustFundJson.address,
+      trustFundAddress,
       trustFundJson.abi,
       signer,
     );
