@@ -102,9 +102,9 @@ export default function WithdrawForm() {
       console.log(ethValue);
 
       if (ethValue === '0.0') {
-        setWithdrawAmount(ethValue + " ETH can be withdrawn");
+        setWithdrawAmount(ethValue + " MATIC can be withdrawn");
       } else {
-        setWithdrawAmount(ethValue + " ETH can be withdrawn after " + date);
+        setWithdrawAmount(ethValue + " MATIC can be withdrawn after " + date);
       }
     } catch (e: any) {
       console.error(e);
