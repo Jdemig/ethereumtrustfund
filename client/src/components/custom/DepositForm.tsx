@@ -34,7 +34,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import trustFundJson from '@/abis/TrustFund.json';
 
-
 const trustFundAddress = process.env.NEXT_PUBLIC_TRUST_FUND_ADDRESS || '';
 
 const validateSchema = z.object({
