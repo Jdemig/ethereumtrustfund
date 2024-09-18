@@ -49,7 +49,6 @@ const depositFormSchema = z.object({
   depositAmount: z.string(),
 });
 
-
 export default function DepositForm() {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof depositFormSchema>>({
@@ -79,12 +78,12 @@ export default function DepositForm() {
       });
     
       toast({ title: "Transaction sent" });
+
+      form.reset();
     
       await txn.wait();
     
       toast({ title: "Transaction confirmed!", variant: "success" });
-
-      form.reset();
     } catch (e: any) {
       console.error(e);
 

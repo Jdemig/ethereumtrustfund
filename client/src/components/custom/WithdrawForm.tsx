@@ -5,38 +5,33 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { useToast } from "@/hooks/use-toast";
 import trustFundJson from "@/abis/TrustFund.json";
+import { Label } from "../ui/label";
 
 const trustFundAddress = process.env.NEXT_PUBLIC_TRUST_FUND_ADDRESS || '';
 
+type Deposit = {
+  depositId: number;
+  beneficiary: string;
+  depositor: string;
+  amount: string;
+  withdrawalDate: string;
+}
 
 export default function WithdrawForm() {
-  const [withdrawAmount, setWithdrawAmount] = useState<string>('');
-  const { toast } = useToast();
-  const form = useForm({
-    values: {
-      withdrawalAddress: '',
-    }
-  });
+  const [withdrawalAddress, setWithdrawalAddress] = useState<string>('');
+  const [deposits, setDeposits] = useState<Deposit[]>([]); 
 
-  const onSubmit = async () => {
+  const { toast } = useToast();
+  
+  const onHandleWithdraw = async (depositId: number) => {
     try {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
@@ -46,13 +41,15 @@ export default function WithdrawForm() {
         signer,
       );
 
-      const txn = await contract.withdrawFunds();
+      const txn = await contract.withdrawFunds(depositId);
 
       toast({ title: "Transaction sent" });
 
       await txn.wait();
 
       toast({ title: "Transaction confirmed!" });
+
+      getWithdrawalAmounts();
     } catch (e: any) {
       if (e.message.includes('No funds available')) {
         return toast({ title: "No funds available to withdraw.", variant: "destructive" });
@@ -66,111 +63,103 @@ export default function WithdrawForm() {
     const provider = new ethers.BrowserProvider(window.ethereum);
     const signer = await provider.getSigner();
 
-    const withdrawalAddress = await signer.getAddress();
+    const address = await signer.getAddress();
 
-    form.setValue("withdrawalAddress", withdrawalAddress);
+    setWithdrawalAddress(address);
   }
 
-  const getWithdrawalAmount = async () => {
+  const getWithdrawalAmounts = async () => {
     try {
-      console.log('getWi')
-
       const provider = new ethers.BrowserProvider(window.ethereum);
-      console.log(provider);
 
       const signer = await provider.getSigner();
     
-      console.log(signer);
-      console.log(trustFundAddress);
       const contract = new ethers.Contract(
         trustFundAddress,
         trustFundJson.abi,
         signer,
       );
-      console.log(contract);
   
-      const txn = await contract.getFundsAmount();
+      const txn = await contract.getMyDeposits();
 
-      console.log(txn);
-  
-      const ethValue = ethers.formatEther(txn);
-  
-      const txn2 = await contract.getFundsWithdrawalDate();
-  
-      const date = new Date(parseInt(txn2) * 1000);
+      const deposits: Deposit[] = Object.values(txn).filter((d: any) => d[3] > 0).map((d: any) => ({
+        depositId: d[0],
+        depositor: d[1],
+        beneficiary: d[2],
+        amount: ethers.formatEther(d[3]),
+        withdrawalDate: new Date(parseInt(d[4]) * 1000).toLocaleDateString("en-US"),
+      }));
 
-      console.log(ethValue);
-
-      if (ethValue === '0.0') {
-        setWithdrawAmount(ethValue + " MATIC can be withdrawn");
-      } else {
-        setWithdrawAmount(ethValue + " MATIC can be withdrawn after " + date);
-      }
+      setDeposits(deposits);
     } catch (e: any) {
       console.error(e);
       toast({ title: e.message, variant: "destructive" });
-      setWithdrawAmount("");
+      setDeposits([]);
     }
   }
 
   useEffect(() => {
     setAddress();
-    getWithdrawalAmount();
+    getWithdrawalAmounts();
 
     window.ethereum.on('accountsChanged', function () {
       setAddress();
-      getWithdrawalAmount();
+      getWithdrawalAmounts();
     });
   }, []);
 
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} >
-        <Card>
-          <CardHeader>
-            <CardTitle>Withdraw</CardTitle>
-            <CardDescription>
-              Withdraw funds from the beneficiary address.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <FormField
-              control={form.control}
-              name="withdrawalAddress"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Withdrawal Address</FormLabel>
-                  <Input
-                    id="withdrawalAddress"
-                    placeholder="0x5795E7...db038"
-                    value={field.value}
-                    onChange={field.onChange}
-                    disabled
-                  />
-                  <FormDescription>
-                    To withdraw funds to a different address than the one seen here use Metamask to connect a different account.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <Card>
+      <CardHeader>
+        <CardTitle>Withdraw</CardTitle>
+        <CardDescription>
+          Withdraw funds from the beneficiary address.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
 
-            {withdrawAmount && (
-              <div className="flex items-center space-x-4 rounded-md border p-4">
-                <div className="flex-1 space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    {withdrawAmount}
-                  </p>
-                </div>
-              </div>
-            )}
-          </CardContent>
-          <CardFooter>
-            <Button type="submit">Withdraw</Button>
-          </CardFooter>
-        </Card>
-      </form>
-    </Form>
+        <div className="flex flex-col space-y-2">
+          <Label htmlFor="withdrawalAddress">Withdrawal Address</Label>
+          <Input
+            id="withdrawalAddress"
+            placeholder="0x5795E7...db038"
+            value={withdrawalAddress}
+            onChange={(e) => setWithdrawalAddress(e.target.value)}
+            disabled
+          />
+          <div className="text-muted-foreground">
+            To withdraw funds to a different address than the one seen here use Metamask to connect a different account.
+          </div>
+        </div>
+
+        {!!deposits.length && deposits.map((deposit, i) => (
+          <div key={i} className="flex items-center space-x-4 rounded-md border p-4">
+            <div className="flex-1 space-y-2 w-full">
+              <p className="text-sm text-muted-foreground text-nowrap text-ellipsis overflow-hidden">
+                <strong>Depositor: </strong> {deposit.depositor}
+              </p>
+              <p className="text-sm text-muted-foreground text-nowrap text-ellipsis overflow-hidden">
+                <strong>Beneficiary: </strong> {deposit.beneficiary} 
+              </p>
+              <p className="text-sm text-muted-foreground text-nowrap text-ellipsis overflow-hidden">
+                <strong>Amount: </strong> {deposit.amount} MATIC
+
+              </p>
+              <p className="text-sm text-muted-foreground text-nowrap text-ellipsis overflow-hidden">
+                <strong>Withdrawal Date: </strong> {deposit.withdrawalDate}
+              </p>
+              <Button
+                className="!mt-4"
+                type="button"
+                onClick={() => onHandleWithdraw(deposit.depositId)}
+              >
+                Withdraw
+              </Button>
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
   );
 }
