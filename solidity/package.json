@@ -1,0 +1,24 @@
+{
+  "name": "solidity",
+  "version": "1.0.0",
+  "description": "A trustless fund project",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx hardhat compile --show-stack-traces",
+    "clean": "npx hardhat clean --show-stack-traces",
+    "test": "npx hardhat test test/TrustFund.ts --show-stack-traces",
+    "deploy-amoy": "npx hardhat ignition deploy ./ignition/modules/TrustFund.ts --network polygonAmoy",
+    "deploy-polygon": "npx hardhat ignition deploy ./ignition/modules/TrustFund.ts --network polygon",
+    "verify-amoy": "npx hardhat ignition verify chain-80002 --include-unrelated-contracts",
+    "verify-polygon": "npx hardhat ignition verify chain-137 --include-unrelated-contracts"
+  },
+  "author": "Jonathan Emig",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.10"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}
