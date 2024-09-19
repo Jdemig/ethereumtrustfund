@@ -47,7 +47,7 @@ export default function WithdrawForm() {
 
       await txn.wait();
 
-      toast({ title: "Transaction confirmed!" });
+      toast({ title: "Transaction confirmed!", variant: "success" });
 
       getWithdrawalAmounts();
     } catch (e: any) {
