@@ -56,7 +56,7 @@ contract TrustFund {
         require(deposit.amount > 0, "No funds available for withdrawal");
         require(msg.sender == deposit.beneficiary || msg.sender == deposit.depositor, "You must either be the depositor or the beneficiary to withdraw funds");
 
-        if (msg.sender == deposit.beneficiary) {
+        if (msg.sender != deposit.depositor) {
             require(block.timestamp >= deposit.withdrawalDate, "Withdrawal date has not yet passed");
         }
 
