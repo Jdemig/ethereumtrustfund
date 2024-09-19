@@ -28,9 +28,11 @@ describe("TrustFund Tests", () => {
 
         const receipt = await txn.wait();
 
-        const amount = await trustFund.getFundsAmount();
+        const unformattedDeposits = await trustFund.getMyDeposits();
 
-        const etherAmount = hre.ethers.formatEther(amount);
+        const deposits = Object.values(unformattedDeposits);
+
+        const etherAmount = hre.ethers.formatEther(deposits[0][3]);
 
         expect(etherAmount).to.equal("0.01");
     });
@@ -49,7 +51,13 @@ describe("TrustFund Tests", () => {
 
         await timeout(5000);
 
-        const fundsTxn = await trustFund.withdrawFunds();
+        const unformattedDeposits = await trustFund.getMyDeposits();
+
+        const deposits = Object.values(unformattedDeposits);
+
+        const firstDepositId = deposits[0][0];
+
+        const fundsTxn = await trustFund.withdrawFunds(firstDepositId);
 
         const fundReceipts = await fundsTxn.wait();
 
