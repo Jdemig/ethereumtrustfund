@@ -5,7 +5,7 @@ import 'dotenv/config'
 import { accounts, hardhatAccounts } from "./test-wallets";
 
 
-const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
+const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY;
 const AMOY_RPC_PROVIDER = process.env.AMOY_RPC_PROVIDER || '';
 const POLYGON_RPC_PROVIDER = process.env.POLYGON_RPC_PROVIDER || '';
 
@@ -18,7 +18,7 @@ const BUIDLEREVM_CHAINID = 31337;
 const config: HardhatUserConfig = {
   solidity: "0.8.24",
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY,
+    apiKey: POLYGONSCAN_API_KEY,
     customChains: [
       {
         network: "polygonAmoy",
