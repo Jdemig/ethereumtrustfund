@@ -6,15 +6,26 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import DepositForm from "@/components/custom/DepositForm";
 import WithdrawForm from "@/components/custom/WithdrawForm";
 import { useEffect } from "react";
 import { ethers } from "ethers";
 import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 const NEXT_PUBLIC_ETH_NETWORK = process.env.NEXT_PUBLIC_ETH_NETWORK;
 
 export default function Home() {
+  const [isMetamaskInstalled, setIsMetamaskInstalled] = useState(false);
+
   const checkNetworkAndNotify = () => {
     const provider = new ethers.BrowserProvider(window.ethereum);
     provider.getNetwork()
@@ -27,11 +38,16 @@ export default function Home() {
   }
 
   useEffect(() => {
-    checkNetworkAndNotify();
-
-    window.ethereum.on('chainChanged', function() {
+    if (!window.ethereum) {
+      setIsMetamaskInstalled(false);
+    } else {
+      setIsMetamaskInstalled(true);
       checkNetworkAndNotify();
-    });
+
+      window.ethereum.on('chainChanged', function() {
+        checkNetworkAndNotify();
+      });
+    }
   }, [])
 
   return (
@@ -42,18 +58,27 @@ export default function Home() {
             Ethereum Trustless Fund
           </h2>
 
-          <Tabs defaultValue="deposit" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="deposit">Deposit</TabsTrigger>
-              <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
-            </TabsList>
-            <TabsContent value="deposit">
-              <DepositForm />
-            </TabsContent>
-            <TabsContent value="withdraw">
-              <WithdrawForm />
-            </TabsContent>
-          </Tabs> 
+          {!isMetamaskInstalled ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Please Install Metamask</CardTitle>
+                <CardDescription>Metamask is required to use this application as well as most other Web3 applications.</CardDescription>
+              </CardHeader>
+            </Card>
+          ) : (
+            <Tabs defaultValue="deposit" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="deposit">Deposit</TabsTrigger>
+                <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
+              </TabsList>
+              <TabsContent value="deposit">
+                <DepositForm />
+              </TabsContent>
+              <TabsContent value="withdraw">
+                <WithdrawForm />
+              </TabsContent>
+            </Tabs>
+          )}
         </div>
       </div>
     </main>
